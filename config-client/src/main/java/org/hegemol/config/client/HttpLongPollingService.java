@@ -1,12 +1,14 @@
 package org.hegemol.config.client;
 
+import com.alibaba.fastjson2.JSON;
 import org.hegemol.config.client.cache.LocalCacheData;
 import org.hegemol.config.client.config.HttpLongPollingConfigurationProperties;
 import org.hegemol.config.common.constant.Constants;
 import org.hegemol.config.common.utils.Md5Utils;
+import org.hegemol.config.common.utils.WorkThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,6 +17,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author KevinClair
  **/
-public class HttpLongPollingService implements InitializingBean {
+public class HttpLongPollingService implements DisposableBean {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpLongPollingService.class);
 
@@ -33,19 +41,28 @@ public class HttpLongPollingService implements InitializingBean {
 
     private final RestTemplate restTemplate;
 
-    private final HttpLongPollingConfigurationProperties configurationProperties;
+    private final ExecutorService executor;
 
     private final String app;
 
     public HttpLongPollingService(final RestTemplate restTemplate, final HttpLongPollingConfigurationProperties configurationProperties, final String app) {
         this.restTemplate = restTemplate;
-        this.configurationProperties = configurationProperties;
         this.app = app;
+        List<String> urlList = Arrays.asList(configurationProperties.getUrl().split(","));
+        this.executor = new ThreadPoolExecutor(urlList.size(), urlList.size(), 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+                new WorkThreadFactory("client"), new ThreadPoolExecutor.AbortPolicy());
+        this.start(urlList);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
+    /**
+     * 开启轮询请求
+     *
+     * @param urlList 服务端列表
+     */
+    private void start(List<String> urlList) {
+        if (RUNNING.compareAndSet(false, true)) {
+            urlList.forEach(each -> executor.execute(new HttpLongPollingTask(each)));
+        }
     }
 
     /**
@@ -71,6 +88,21 @@ public class HttpLongPollingService implements InitializingBean {
 
         // 发送请求
         String json = this.restTemplate.postForEntity(listenerUrl, httpEntity, String.class).getBody();
+        // 获取data数据
+        String data = JSON.parseObject(json).getString("data");
+
+        // 和当前的缓存值进行比较，如果相同，就不更新，如果不同就更新本地缓存
+        if (!Md5Utils.md5(data).equals(Md5Utils.md5(config))) {
+            logger.info("Http长轮询请求，本次请求发生配置变更，变更后的数据为：{}", data);
+            LocalCacheData.getInstance().setConfig(data);
+        }
+
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        RUNNING.compareAndSet(true, false);
+        Optional.ofNullable(executor).ifPresent(ex -> ex.shutdownNow());
     }
 
     class HttpLongPollingTask implements Runnable {
