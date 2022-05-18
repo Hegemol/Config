@@ -1,18 +1,18 @@
-package org.hegemol.config.client.cache;
+package org.hegemol.config.common.model;
 
 /**
- * 模拟一下本地缓存数据
+ * 客户端本地缓存数据
  *
  * @author KevinClair
  **/
-public class LocalCacheData {
+public class LocalCacheClientData {
 
     /**
      * 模拟本地缓存
      */
     private String config;
 
-    private LocalCacheData() {
+    private LocalCacheClientData() {
 
     }
 
@@ -21,7 +21,7 @@ public class LocalCacheData {
      *
      * @return 单例对象
      */
-    public static LocalCacheData getInstance() {
+    public static LocalCacheClientData getInstance() {
         return LocalCacheDataSingleton.INSTANCE;
     }
 
@@ -34,6 +34,6 @@ public class LocalCacheData {
     }
 
     private static class LocalCacheDataSingleton {
-        private static final LocalCacheData INSTANCE = new LocalCacheData();
+        private static final LocalCacheClientData INSTANCE = new LocalCacheClientData();
     }
 }

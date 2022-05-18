@@ -1,9 +1,9 @@
 package org.hegemol.config.client;
 
 import com.alibaba.fastjson2.JSON;
-import org.hegemol.config.client.cache.LocalCacheData;
 import org.hegemol.config.client.config.HttpLongPollingConfigurationProperties;
 import org.hegemol.config.common.constant.Constants;
+import org.hegemol.config.common.model.LocalCacheClientData;
 import org.hegemol.config.common.utils.Md5Utils;
 import org.hegemol.config.common.utils.WorkThreadFactory;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class HttpLongPollingService implements DisposableBean {
      */
     private void doLongPolling(final String url) {
         // 获取本地缓存的数据
-        String config = LocalCacheData.getInstance().getConfig();
+        String config = LocalCacheClientData.getInstance().getConfig();
         // 初始化请求参数
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>(8);
         // 当前的请求应用
@@ -94,7 +94,7 @@ public class HttpLongPollingService implements DisposableBean {
         // 和当前的缓存值进行比较，如果相同，就不更新，如果不同就更新本地缓存
         if (!Md5Utils.md5(data).equals(Md5Utils.md5(config))) {
             logger.info("Http长轮询请求，本次请求发生配置变更，变更后的数据为：{}", data);
-            LocalCacheData.getInstance().setConfig(data);
+            LocalCacheClientData.getInstance().setConfig(data);
         }
 
     }
