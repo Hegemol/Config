@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: config-server
+  datasource:
+    url: jdbc:mysql://150.158.214.232:3306/config?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: ming19940601*
+    driver-class-name: com.mysql.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:/mappers/*.xml
