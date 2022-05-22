@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.hegemol.config.client.HttpLongPollingAutoConfiguration
+#org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.hegemol.config.client.HttpLongPollingAutoConfiguration
