@@ -16,11 +16,6 @@ public class HttpLongPollingConfigurationProperties {
     private String url;
 
     /**
-     * 每次轮询的延迟时间
-     */
-    private Integer delayTime;
-
-    /**
      * 连接超时时间
      */
     private Integer connectionTimeout = 10;
@@ -35,9 +30,8 @@ public class HttpLongPollingConfigurationProperties {
      */
     private Integer readTimeout = 90;
 
-    public HttpLongPollingConfigurationProperties(final String url, final Integer delayTime, final Integer connectionTimeout, final Integer writeTimeout, final Integer readTimeout) {
+    public HttpLongPollingConfigurationProperties(final String url, final Integer connectionTimeout, final Integer writeTimeout, final Integer readTimeout) {
         this.url = url;
-        this.delayTime = delayTime;
         this.connectionTimeout = connectionTimeout;
         this.writeTimeout = writeTimeout;
         this.readTimeout = readTimeout;
@@ -52,14 +46,6 @@ public class HttpLongPollingConfigurationProperties {
 
     public void setUrl(final String url) {
         this.url = url;
-    }
-
-    public Integer getDelayTime() {
-        return delayTime;
-    }
-
-    public void setDelayTime(final Integer delayTime) {
-        this.delayTime = delayTime;
     }
 
     public Integer getConnectionTimeout() {
