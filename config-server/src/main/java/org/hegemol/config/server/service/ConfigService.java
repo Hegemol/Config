@@ -1,5 +1,9 @@
 package org.hegemol.config.server.service;
 
+import org.hegemol.config.server.model.ConfigDO;
+
+import java.util.List;
+
 /**
  * 配置服务
  *
@@ -23,4 +27,11 @@ public interface ConfigService {
      * @param content 配置内容
      */
     void updateConfig(String app, String content);
+
+    /**
+     * 缓存所有数据
+     *
+     * @return 所有配置数据
+     */
+    List<ConfigDO> cacheAll();
 }
