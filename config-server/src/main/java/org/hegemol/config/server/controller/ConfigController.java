@@ -1,10 +1,11 @@
 package org.hegemol.config.server.controller;
 
-import org.hegemol.config.common.model.ConfigDto;
 import org.hegemol.config.common.model.Result;
 import org.hegemol.config.server.handler.HttpLongPollingHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 配置监听处理器
@@ -23,11 +24,20 @@ public class ConfigController {
     /**
      * 配置监听
      *
-     * @param dto 数据传输对象
-     * @return 当前app的配置信息
+     * @param request 请求对象
      */
-    @RequestMapping("/listener")
-    public Result<String> listener(ConfigDto dto) {
-        return Result.success(handler.listener(dto));
+    @PostMapping("/listener")
+    public void listener(HttpServletRequest request) {
+        handler.listener(request);
+    }
+
+    /**
+     * 初始化配置数据
+     *
+     * @param request 请求对象
+     */
+    @PostMapping("/init")
+    public Result<String> init(HttpServletRequest request) {
+        return Result.success(handler.init(request));
     }
 }

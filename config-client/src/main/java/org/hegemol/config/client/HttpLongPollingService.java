@@ -60,9 +60,31 @@ public class HttpLongPollingService implements DisposableBean {
      * @param urlList 服务端列表
      */
     private void start(List<String> urlList) {
+        // 先初始化本地的配置信息
+        this.initConfig(urlList.get(0));
         if (RUNNING.compareAndSet(false, true)) {
             urlList.forEach(each -> executor.execute(new HttpLongPollingTask(each)));
         }
+    }
+
+    private void initConfig(String url) {
+        // 初始化请求参数
+        MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>(8);
+        // 当前的请求应用
+        requestParam.put("app", Arrays.asList(app));
+
+        // 拼装请求参数
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(requestParam, headers);
+        String initUrl = url + Constants.CACHE_INIT_URL;
+
+        // 发送请求
+        String json = this.restTemplate.postForEntity(initUrl, httpEntity, String.class).getBody();
+        // 获取data数据
+        String config = JSON.parseObject(json).getString("data");
+
+        LocalCacheClientData.getInstance().setConfig(config);
     }
 
     /**
@@ -70,7 +92,7 @@ public class HttpLongPollingService implements DisposableBean {
      *
      * @param url 请求的url地址
      */
-    private void doLongPolling(final String url) {
+    private void doLongPolling(String url) {
         // 获取本地缓存的数据
         String config = LocalCacheClientData.getInstance().getConfig();
         // 初始化请求参数
