@@ -1,8 +1,12 @@
 package org.hegemol.config.server.service.impl;
 
+import org.hegemol.config.common.model.ConfigDTO;
+import org.hegemol.config.common.model.ConfigVO;
+import org.hegemol.config.server.handler.DataChangeEvent;
 import org.hegemol.config.server.mapper.ConfigMapper;
 import org.hegemol.config.server.model.ConfigDO;
 import org.hegemol.config.server.service.ConfigService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +21,11 @@ public class ConfigServiceImpl implements ConfigService {
 
     private final ConfigMapper mapper;
 
-    public ConfigServiceImpl(final ConfigMapper mapper) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public ConfigServiceImpl(final ConfigMapper mapper, final ApplicationEventPublisher eventPublisher) {
         this.mapper = mapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -27,8 +34,10 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public void updateConfig(final String app, final String content) {
-
+    public void updateConfig(ConfigVO vo) {
+        mapper.updateConfig(vo.getApp(), vo.getConfig());
+        // 发布更新事件
+        eventPublisher.publishEvent(new DataChangeEvent(new ConfigDTO(vo.getApp(), vo.getConfig()), vo.getApp(), vo.getConfig()));
     }
 
     @Override

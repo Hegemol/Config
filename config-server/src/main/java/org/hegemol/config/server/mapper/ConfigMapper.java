@@ -26,4 +26,12 @@ public interface ConfigMapper {
      * @return 配置数据
      */
     String getConfig(@Param("app") String app);
+
+    /**
+     * 修改app对应的配置信息
+     *
+     * @param app    应用名
+     * @param config 配置数据
+     */
+    void updateConfig(@Param("app") String app, @Param("config") String config);
 }

@@ -1,5 +1,6 @@
 package org.hegemol.config.server.service;
 
+import org.hegemol.config.common.model.ConfigVO;
 import org.hegemol.config.server.model.ConfigDO;
 
 import java.util.List;
@@ -23,10 +24,9 @@ public interface ConfigService {
     /**
      * 修改配置内容
      *
-     * @param app     应用名
-     * @param content 配置内容
+     * @param vo
      */
-    void updateConfig(String app, String content);
+    void updateConfig(ConfigVO vo);
 
     /**
      * 缓存所有数据
