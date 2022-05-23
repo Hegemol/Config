@@ -28,9 +28,9 @@ public class HttpLongPollingAutoConfiguration {
     @Bean
     public RestTemplate restTemplate(HttpLongPollingConfigurationProperties configurationProperties) {
         OkHttp3ClientHttpRequestFactory factory = new OkHttp3ClientHttpRequestFactory();
-        factory.setConnectTimeout(configurationProperties.getConnectionTimeout());
-        factory.setReadTimeout(configurationProperties.getReadTimeout());
-        factory.setWriteTimeout(configurationProperties.getWriteTimeout());
+        factory.setConnectTimeout((int) configurationProperties.getConnectionTimeout());
+        factory.setReadTimeout((int) configurationProperties.getReadTimeout());
+        factory.setWriteTimeout((int) configurationProperties.getWriteTimeout());
         return new RestTemplate(factory);
     }
 

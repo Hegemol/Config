@@ -2,6 +2,8 @@ package org.hegemol.config.client.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 长轮询请求配置
  *
@@ -18,19 +20,19 @@ public class HttpLongPollingConfigurationProperties {
     /**
      * 连接超时时间
      */
-    private Integer connectionTimeout = 10;
+    private long connectionTimeout = TimeUnit.SECONDS.toMillis(10);
 
     /**
      * 写超时时间
      */
-    private Integer writeTimeout = 90;
+    private long writeTimeout = TimeUnit.SECONDS.toMillis(90);
 
     /**
      * 读超时时间
      */
-    private Integer readTimeout = 90;
+    private long readTimeout = TimeUnit.SECONDS.toMillis(90);
 
-    public HttpLongPollingConfigurationProperties(final String url, final Integer connectionTimeout, final Integer writeTimeout, final Integer readTimeout) {
+    public HttpLongPollingConfigurationProperties(final String url, final long connectionTimeout, final long writeTimeout, final long readTimeout) {
         this.url = url;
         this.connectionTimeout = connectionTimeout;
         this.writeTimeout = writeTimeout;
@@ -48,27 +50,27 @@ public class HttpLongPollingConfigurationProperties {
         this.url = url;
     }
 
-    public Integer getConnectionTimeout() {
+    public long getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public void setConnectionTimeout(final Integer connectionTimeout) {
+    public void setConnectionTimeout(final long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public Integer getWriteTimeout() {
+    public long getWriteTimeout() {
         return writeTimeout;
     }
 
-    public void setWriteTimeout(final Integer writeTimeout) {
+    public void setWriteTimeout(final long writeTimeout) {
         this.writeTimeout = writeTimeout;
     }
 
-    public Integer getReadTimeout() {
+    public long getReadTimeout() {
         return readTimeout;
     }
 
-    public void setReadTimeout(final Integer readTimeout) {
+    public void setReadTimeout(final long readTimeout) {
         this.readTimeout = readTimeout;
     }
 }
