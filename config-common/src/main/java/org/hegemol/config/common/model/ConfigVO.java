@@ -5,7 +5,7 @@ package org.hegemol.config.common.model;
  *
  * @author KevinClair
  **/
-public class ConfigDto {
+public class ConfigVO {
 
     private String app;
 
