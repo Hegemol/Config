@@ -22,7 +22,7 @@ public class ConfigDO {
     /**
      * 配置内容
      */
-    private String content;
+    private String config;
 
     /**
      * 创建时间
@@ -50,12 +50,12 @@ public class ConfigDO {
         this.app = app;
     }
 
-    public String getContent() {
-        return content;
+    public String getConfig() {
+        return config;
     }
 
-    public void setContent(final String content) {
-        this.content = content;
+    public void setConfig(final String config) {
+        this.config = config;
     }
 
     public Date getCreatTime() {

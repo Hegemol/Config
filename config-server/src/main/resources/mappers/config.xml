@@ -22,7 +22,7 @@
     <resultMap id="BaseResultMap" type="org.hegemol.config.server.model.ConfigDO">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="app" jdbcType="VARCHAR" property="app"/>
-        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="config" jdbcType="VARCHAR" property="config"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="creatTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
@@ -32,8 +32,12 @@
     </select>
 
     <select id="getConfig" resultType="java.lang.String">
-        select content from config where app = #{app}
+        select config from config where app = #{app}
     </select>
+
+    <update id="updateConfig">
+        update config set config = #{config} where app = #{app}
+    </update>
 
 
 </mapper>
