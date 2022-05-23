@@ -85,6 +85,7 @@ public class HttpLongPollingService implements DisposableBean {
         String config = JSON.parseObject(json).getString("data");
 
         LocalCacheClientData.getInstance().setConfig(config);
+        logger.info("Http长轮询客户端配置信息初始化，配置数据:{}", config);
     }
 
     /**
@@ -112,6 +113,7 @@ public class HttpLongPollingService implements DisposableBean {
         String json = this.restTemplate.postForEntity(listenerUrl, httpEntity, String.class).getBody();
         // 获取data数据
         String data = JSON.parseObject(json).getString("data");
+        logger.info("Http长轮询客户端接收到服务端返回:{}", data);
 
         // 和当前的缓存值进行比较，如果相同，就不更新，如果不同就更新本地缓存
         if (!Md5Utils.md5(data).equals(Md5Utils.md5(config))) {
