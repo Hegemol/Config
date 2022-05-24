@@ -5,6 +5,7 @@ USE `config`;
 CREATE TABLE IF NOT EXISTS `config` (
     `id`          bigint       auto_increment            not null comment '主键',
     `app`         varchar(25)  default ''                not null comment '应用名称',
+    `group`       varchar(25)  default 'DEFAULT_GROUP'   not null comment '对应应用的配置组',
     `content`     varchar(500) default ''                not null comment '配置信息',
     `create_time` datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     `update_time` datetime     default CURRENT_TIMESTAMP not null comment '更新时间',

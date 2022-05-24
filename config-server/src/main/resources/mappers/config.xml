@@ -22,6 +22,7 @@
     <resultMap id="BaseResultMap" type="org.hegemol.config.server.model.ConfigDO">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="app" jdbcType="VARCHAR" property="app"/>
+        <result column="group" jdbcType="VARCHAR" property="group"/>
         <result column="config" jdbcType="VARCHAR" property="config"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="creatTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>

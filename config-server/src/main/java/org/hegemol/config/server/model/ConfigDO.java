@@ -3,7 +3,7 @@ package org.hegemol.config.server.model;
 import java.util.Date;
 
 /**
- * TODO
+ * config数据库映射对象
  *
  * @author KevinClair
  **/
@@ -18,6 +18,11 @@ public class ConfigDO {
      * 应用名
      */
     private String app;
+
+    /**
+     * 组
+     */
+    private String group;
 
     /**
      * 配置内容
@@ -72,5 +77,13 @@ public class ConfigDO {
 
     public void setUpdateTime(final Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(final String group) {
+        this.group = group;
     }
 }
