@@ -9,7 +9,11 @@ import java.util.Map;
  **/
 public class LocalCacheServerData {
 
-    private Map<String, String> data;
+    /**
+     * 第一层map，key为应用名
+     * 第二层map，key为group组，value为对应group组的value值
+     */
+    private Map<String, Map<String, String>> data;
 
     private LocalCacheServerData() {
 
@@ -24,11 +28,11 @@ public class LocalCacheServerData {
         return LocalCacheDataSingleton.INSTANCE;
     }
 
-    public Map<String, String> getData() {
+    public Map<String, Map<String, String>> getData() {
         return data;
     }
 
-    public void setData(final Map<String, String> data) {
+    public void setData(final Map<String, Map<String, String>> data) {
         this.data = data;
     }
 

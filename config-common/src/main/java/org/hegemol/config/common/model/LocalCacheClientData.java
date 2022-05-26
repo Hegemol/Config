@@ -1,5 +1,7 @@
 package org.hegemol.config.common.model;
 
+import java.util.Map;
+
 /**
  * 客户端本地缓存数据
  *
@@ -8,9 +10,9 @@ package org.hegemol.config.common.model;
 public class LocalCacheClientData {
 
     /**
-     * 模拟本地缓存
+     * 模拟本地缓存, key为group, value为对应group的配置数据
      */
-    private String config;
+    private Map<String, String> config;
 
     private LocalCacheClientData() {
 
@@ -25,11 +27,11 @@ public class LocalCacheClientData {
         return LocalCacheDataSingleton.INSTANCE;
     }
 
-    public String getConfig() {
+    public Map<String, String> getConfig() {
         return config;
     }
 
-    public void setConfig(final String config) {
+    public void setConfig(final Map<String, String> config) {
         this.config = config;
     }
 
