@@ -1,6 +1,7 @@
 package org.hegemol.config.server.service.impl;
 
 import org.hegemol.config.common.model.ConfigDTO;
+import org.hegemol.config.common.model.ConfigResponse;
 import org.hegemol.config.common.model.ConfigVO;
 import org.hegemol.config.server.handler.DataChangeEvent;
 import org.hegemol.config.server.mapper.ConfigMapper;
@@ -10,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 配置服务实现
@@ -29,8 +31,8 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public String getConfig(final String app) {
-        return mapper.getConfig(app);
+    public List<ConfigResponse> getConfig(final String app, final List<String> group) {
+        return mapper.getConfig(app, group).stream().map(each -> new ConfigResponse(each.getApp(), each.getConfig(), each.getGroup())).collect(Collectors.toList());
     }
 
     @Override

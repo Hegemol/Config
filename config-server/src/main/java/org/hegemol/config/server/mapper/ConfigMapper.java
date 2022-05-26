@@ -20,12 +20,13 @@ public interface ConfigMapper {
     List<ConfigDO> getAll();
 
     /**
-     * 根据app获取对应的配置数据
+     * 根据app和分组获取对应的配置数据
      *
-     * @param app 应用名
+     * @param app   应用名
+     * @param group 分组
      * @return 配置数据
      */
-    String getConfig(@Param("app") String app);
+    List<ConfigDO> getConfig(@Param("app") String app, @Param("group") List<String> group);
 
     /**
      * 修改app对应的配置信息

@@ -32,8 +32,17 @@
         select * from config;
     </select>
 
-    <select id="getConfig" resultType="java.lang.String">
-        select config from config where app = #{app}
+    <select id="getConfig" resultMap="BaseResultMap">
+        select
+        app,
+        group,
+        config
+        from config
+        where app = #{app}
+        AND group in
+        <foreach collection="group" open="(" close=")" index="index" item="item">
+            #{item}
+        </foreach>
     </select>
 
     <update id="updateConfig">

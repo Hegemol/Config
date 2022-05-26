@@ -1,5 +1,6 @@
 package org.hegemol.config.server.service;
 
+import org.hegemol.config.common.model.ConfigResponse;
 import org.hegemol.config.common.model.ConfigVO;
 import org.hegemol.config.server.model.ConfigDO;
 
@@ -16,10 +17,11 @@ public interface ConfigService {
     /**
      * 根据app获取对应的配置信息
      *
-     * @param app
+     * @param app   应用名
+     * @param group 分组
      * @return 配置信息
      */
-    String getConfig(String app);
+    List<ConfigResponse> getConfig(String app, List<String> group);
 
     /**
      * 修改配置内容
