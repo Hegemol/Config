@@ -15,5 +15,10 @@ public class Constants {
     /**
      * 服务端配置监听
      */
-    public static final String CACHE_INIT_URL = "/init";
+    public static final String GET_CONFIG_URL = "/get";
+
+    /**
+     * 应用默认配置分组
+     */
+    public static final String DEFAULT_GROUP = "DEFAULT_GROUP";
 }
