@@ -33,6 +33,7 @@ public interface ConfigMapper {
      *
      * @param app    应用名
      * @param config 配置数据
+     * @param group  配置组
      */
-    void updateConfig(@Param("app") String app, @Param("config") String config);
+    void updateConfig(@Param("app") String app, @Param("config") String config, @Param("group") String group);
 }

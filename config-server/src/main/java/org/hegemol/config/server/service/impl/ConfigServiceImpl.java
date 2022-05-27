@@ -37,9 +37,9 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public void updateConfig(ConfigVO vo) {
-        mapper.updateConfig(vo.getApp(), vo.getConfig());
+        mapper.updateConfig(vo.getApp(), vo.getConfig(), vo.getGroup());
         // 发布更新事件
-        eventPublisher.publishEvent(new DataChangeEvent(new ConfigDTO(vo.getApp(), vo.getConfig()), vo.getApp(), vo.getConfig()));
+        eventPublisher.publishEvent(new DataChangeEvent(new ConfigDTO(vo.getApp(), vo.getGroup(), vo.getConfig()), vo.getApp(), vo.getConfig()));
     }
 
     @Override

@@ -34,20 +34,18 @@
 
     <select id="getConfig" resultMap="BaseResultMap">
         select
-        app,
-        group,
-        config
-        from config
-        where app = #{app}
-        AND group in
-        <foreach collection="group" open="(" close=")" index="index" item="item">
+        a.app,
+        a.group,
+        a.config
+        from config a
+        where a.app = #{app}
+        AND a.group in
+        <foreach collection="group" open="(" close=")" index="index" item="item" separator=",">
             #{item}
         </foreach>
     </select>
 
     <update id="updateConfig">
-        update config set config = #{config} where app = #{app}
+        update config a set a.config = #{config} where a.app = #{app} and a.group = #{group}
     </update>
-
-
 </mapper>
