@@ -18,6 +18,16 @@ public class HttpLongPollingConfigurationProperties {
     private String url;
 
     /**
+     * 应用名
+     */
+    private String app;
+
+    /**
+     * 分组
+     */
+    private String group;
+
+    /**
      * 连接超时时间
      */
     private long connectionTimeout = TimeUnit.SECONDS.toMillis(10);
@@ -32,8 +42,10 @@ public class HttpLongPollingConfigurationProperties {
      */
     private long readTimeout = TimeUnit.SECONDS.toMillis(90);
 
-    public HttpLongPollingConfigurationProperties(final String url, final long connectionTimeout, final long writeTimeout, final long readTimeout) {
+    public HttpLongPollingConfigurationProperties(final String url, final String app, final String group, final long connectionTimeout, final long writeTimeout, final long readTimeout) {
         this.url = url;
+        this.app = app;
+        this.group = group;
         this.connectionTimeout = connectionTimeout;
         this.writeTimeout = writeTimeout;
         this.readTimeout = readTimeout;
@@ -72,5 +84,21 @@ public class HttpLongPollingConfigurationProperties {
 
     public void setReadTimeout(final long readTimeout) {
         this.readTimeout = readTimeout;
+    }
+
+    public String getApp() {
+        return app;
+    }
+
+    public void setApp(final String app) {
+        this.app = app;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(final String group) {
+        this.group = group;
     }
 }

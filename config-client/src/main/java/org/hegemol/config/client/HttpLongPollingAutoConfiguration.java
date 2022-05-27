@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,14 +36,14 @@ public class HttpLongPollingAutoConfiguration {
     /**
      * 初始化http长轮询请求服务
      *
-     * @param restTemplate            rest模板
-     * @param configurationProperties 配置文件
-     * @param environment             环境变量
+     * @param restTemplate     rest模板
+     * @param configProperties 配置中心的配置文件
      * @return Http长轮询服务 {@link HttpLongPollingService}
      */
     @Bean
-    public HttpLongPollingService httpLongPollingService(RestTemplate restTemplate, HttpLongPollingConfigurationProperties configurationProperties, ConfigurableEnvironment environment) {
-        return new HttpLongPollingService(restTemplate, configurationProperties, environment.getProperty("spring.application.name"));
+    public HttpLongPollingService httpLongPollingService(RestTemplate restTemplate,
+                                                         HttpLongPollingConfigurationProperties configProperties) {
+        return new HttpLongPollingService(restTemplate, configProperties);
     }
 }
 
