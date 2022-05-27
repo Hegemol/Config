@@ -3,7 +3,9 @@ package org.hegemol.config.client;
 import com.alibaba.fastjson2.JSON;
 import org.hegemol.config.client.config.HttpLongPollingConfigurationProperties;
 import org.hegemol.config.common.constant.Constants;
+import org.hegemol.config.common.model.ConfigResponse;
 import org.hegemol.config.common.model.LocalCacheClientData;
+import org.hegemol.config.common.model.Md5Config;
 import org.hegemol.config.common.utils.Md5Utils;
 import org.hegemol.config.common.utils.WorkThreadFactory;
 import org.slf4j.Logger;
@@ -12,18 +14,24 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * 长轮询请求服务
@@ -45,9 +53,13 @@ public class HttpLongPollingService implements DisposableBean {
 
     private final String app;
 
-    public HttpLongPollingService(final RestTemplate restTemplate, final HttpLongPollingConfigurationProperties configurationProperties, final String app) {
+    private final List<String> group;
+
+    public HttpLongPollingService(final RestTemplate restTemplate,
+                                  final HttpLongPollingConfigurationProperties configurationProperties) {
         this.restTemplate = restTemplate;
-        this.app = app;
+        this.app = configurationProperties.getApp();
+        this.group = StringUtils.hasText(configurationProperties.getGroup()) ? Arrays.asList(configurationProperties.getGroup().split(",")) : Collections.singletonList(Constants.DEFAULT_GROUP);
         List<String> urlList = Arrays.asList(configurationProperties.getUrl().split(","));
         this.executor = new ThreadPoolExecutor(urlList.size(), urlList.size(), 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
                 new WorkThreadFactory("client"), new ThreadPoolExecutor.AbortPolicy());
@@ -61,31 +73,35 @@ public class HttpLongPollingService implements DisposableBean {
      */
     private void start(List<String> urlList) {
         // 先初始化本地的配置信息
-        this.initConfig(urlList.get(0));
+        this.getConfig(urlList.get(0), group);
         if (RUNNING.compareAndSet(false, true)) {
             urlList.forEach(each -> executor.execute(new HttpLongPollingTask(each)));
         }
     }
 
-    private void initConfig(String url) {
+    private void getConfig(String url, List<String> groups) {
         // 初始化请求参数
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>(8);
         // 当前的请求应用
         requestParam.put("app", Arrays.asList(app));
+        // 当前应用监听的应用组
+        requestParam.put("group", groups);
 
         // 拼装请求参数
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(requestParam, headers);
-        String initUrl = url + Constants.CACHE_INIT_URL;
+        String configUrl = url + Constants.GET_CONFIG_URL;
 
         // 发送请求
-        String json = this.restTemplate.postForEntity(initUrl, httpEntity, String.class).getBody();
+        String json = this.restTemplate.postForEntity(configUrl, httpEntity, String.class).getBody();
         // 获取data数据
         String config = JSON.parseObject(json).getString("data");
+        List<ConfigResponse> configList = JSON.parseArray(config, ConfigResponse.class);
 
-        LocalCacheClientData.getInstance().setConfig(config);
-        logger.info("Http长轮询客户端配置信息初始化，配置数据:{}", config);
+        // 本地缓存
+        LocalCacheClientData.getInstance().setConfig(configList.stream().collect(Collectors.toMap(ConfigResponse::getGroup, ConfigResponse::getConfig)));
+        logger.info("Http长轮询客户端配置信息获取，配置数据:{}", config);
     }
 
     /**
@@ -95,13 +111,16 @@ public class HttpLongPollingService implements DisposableBean {
      */
     private void doLongPolling(String url) {
         // 获取本地缓存的数据
-        String config = LocalCacheClientData.getInstance().getConfig();
+        Map<String, String> config = LocalCacheClientData.getInstance().getConfig();
         // 初始化请求参数
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>(8);
         // 当前的请求应用
         requestParam.put("app", Arrays.asList(app));
-        // 放入缓存数据
-        requestParam.put("config", Arrays.asList(Md5Utils.md5(config)));
+        // 初始map，数据源为config，value为md5后的值
+        List<Md5Config> md5Configs = new ArrayList<>(config.size());
+        config.forEach((k, v) -> md5Configs.add(new Md5Config(k, Md5Utils.md5(v))));
+        // 放入请求体
+        requestParam.put("config", Collections.singletonList(JSON.toJSONString(md5Configs)));
 
         // 拼装请求参数
         HttpHeaders headers = new HttpHeaders();
@@ -115,12 +134,13 @@ public class HttpLongPollingService implements DisposableBean {
         String data = JSON.parseObject(json).getString("data");
         logger.info("Http长轮询客户端接收到服务端返回:{}", data);
 
-        // 和当前的缓存值进行比较，如果相同，就不更新，如果不同就更新本地缓存
-        if (!Md5Utils.md5(data).equals(Md5Utils.md5(config))) {
-            logger.info("Http长轮询请求，本次请求发生配置变更，变更后的数据为：{}", data);
-            LocalCacheClientData.getInstance().setConfig(data);
-        }
+        // 获取当前有哪些组的数据发生了变更
+        List<String> changeGroups = JSON.parseArray(data, String.class);
 
+        if (!CollectionUtils.isEmpty(changeGroups)) {
+            // 根据变更组，请求服务端重新获取数据
+            this.getConfig(url, changeGroups);
+        }
     }
 
     @Override
