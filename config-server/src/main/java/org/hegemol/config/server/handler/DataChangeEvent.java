@@ -12,12 +12,12 @@ public class DataChangeEvent extends ApplicationEvent {
 
     private String app;
 
-    private String config;
+    private String group;
 
-    public DataChangeEvent(final ConfigDTO source, final String app, final String config) {
+    public DataChangeEvent(final ConfigDTO source, final String app, final String group) {
         super(source);
         this.app = app;
-        this.config = config;
+        this.group = group;
     }
 
     @Override
@@ -33,11 +33,11 @@ public class DataChangeEvent extends ApplicationEvent {
         this.app = app;
     }
 
-    public String getConfig() {
-        return config;
+    public String getGroup() {
+        return group;
     }
 
-    public void setConfig(final String config) {
-        this.config = config;
+    public void setGroup(final String group) {
+        this.group = group;
     }
 }

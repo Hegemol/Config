@@ -11,6 +11,8 @@ public class ConfigVO {
 
     private String config;
 
+    private String group;
+
     public String getApp() {
         return app;
     }
@@ -25,5 +27,13 @@ public class ConfigVO {
 
     public void setConfig(final String config) {
         this.config = config;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(final String group) {
+        this.group = group;
     }
 }
