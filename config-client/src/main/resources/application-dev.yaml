@@ -1,0 +1,9 @@
+server:
+  port: 8082
+http:
+  url: http://localhost:8081
+  app: dev
+  group: DEFAULT_GROUP,groupDev
+spring:
+  application:
+    name: dev
