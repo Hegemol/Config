@@ -1,5 +1,6 @@
 package org.hegemol.config.client;
 
+import org.hegemol.config.client.config.ConfigRefreshManager;
 import org.hegemol.config.client.config.HttpLongPollingConfigurationProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -44,6 +45,11 @@ public class HttpLongPollingAutoConfiguration {
     public HttpLongPollingService httpLongPollingService(RestTemplate restTemplate,
                                                          HttpLongPollingConfigurationProperties configProperties) {
         return new HttpLongPollingService(restTemplate, configProperties);
+    }
+
+    @Bean
+    public ConfigRefreshManager configRefreshManager(HttpLongPollingService httpLongPollingService) {
+        return new ConfigRefreshManager();
     }
 }
 
