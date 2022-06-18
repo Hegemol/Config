@@ -36,4 +36,11 @@ public @interface ConfigValue {
      * @return
      */
     String defaultValue() default "";
+
+    /**
+     * 是否自动刷新
+     *
+     * @return
+     */
+    boolean refresh() default false;
 }
