@@ -2,6 +2,7 @@ package org.hegemol.config.client;
 
 import com.alibaba.fastjson2.JSON;
 import org.hegemol.config.client.config.HttpLongPollingConfigurationProperties;
+import org.hegemol.config.client.event.ConfigChangeEvent;
 import org.hegemol.config.common.constant.Constants;
 import org.hegemol.config.common.model.ConfigResponse;
 import org.hegemol.config.common.model.LocalCacheClientData;
@@ -11,6 +12,7 @@ import org.hegemol.config.common.utils.WorkThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -55,8 +57,11 @@ public class HttpLongPollingService implements DisposableBean {
 
     private final List<String> group;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     public HttpLongPollingService(final RestTemplate restTemplate,
-                                  final HttpLongPollingConfigurationProperties configurationProperties) {
+                                  final HttpLongPollingConfigurationProperties configurationProperties,
+                                  final ApplicationEventPublisher applicationEventPublisher) {
         this.restTemplate = restTemplate;
         this.app = configurationProperties.getApp();
         this.group = StringUtils.hasText(configurationProperties.getGroup()) ? Arrays.asList(configurationProperties.getGroup().split(",")) : Collections.singletonList(Constants.DEFAULT_GROUP);
@@ -64,6 +69,7 @@ public class HttpLongPollingService implements DisposableBean {
         this.executor = new ThreadPoolExecutor(urlList.size(), urlList.size(), 10, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
                 new WorkThreadFactory("client"), new ThreadPoolExecutor.AbortPolicy());
         this.start(urlList);
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -73,13 +79,13 @@ public class HttpLongPollingService implements DisposableBean {
      */
     private void start(List<String> urlList) {
         // 先初始化本地的配置信息
-        this.getConfig(urlList.get(0), group);
+        this.getConfig(urlList.get(0), group, true);
         if (RUNNING.compareAndSet(false, true)) {
             urlList.forEach(each -> executor.execute(new HttpLongPollingTask(each)));
         }
     }
 
-    private void getConfig(String url, List<String> groups) {
+    private void getConfig(String url, List<String> groups, Boolean isInit) {
         // 初始化请求参数
         MultiValueMap<String, String> requestParam = new LinkedMultiValueMap<>(8);
         // 当前的请求应用
@@ -102,6 +108,10 @@ public class HttpLongPollingService implements DisposableBean {
         // 本地缓存
         LocalCacheClientData.getInstance().setConfig(configList.stream().collect(Collectors.toMap(ConfigResponse::getGroup, ConfigResponse::getConfig)));
         logger.info("Http长轮询客户端配置信息获取，配置数据:{}", config);
+        if (!isInit) {
+            // 发布配置变更事件
+            configList.forEach(each -> applicationEventPublisher.publishEvent(new ConfigChangeEvent(each.getGroup(), each.getGroup(), each.getConfig())));
+        }
     }
 
     /**
@@ -139,7 +149,7 @@ public class HttpLongPollingService implements DisposableBean {
 
         if (!CollectionUtils.isEmpty(changeGroups)) {
             // 根据变更组，请求服务端重新获取数据
-            this.getConfig(url, changeGroups);
+            this.getConfig(url, changeGroups, false);
         }
     }
 
