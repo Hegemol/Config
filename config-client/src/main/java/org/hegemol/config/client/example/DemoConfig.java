@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DemoConfig {
 
-    @ConfigValue("testKey")
+    @ConfigValue(value = "testKey", refresh = true)
     private String testKey;
 
     /**
